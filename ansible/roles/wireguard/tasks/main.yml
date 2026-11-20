@@ -1,0 +1,63 @@
+---
+# Tasks for role: wireguard
+
+- name: Install WireGuard
+  ansible.builtin.apt:
+    name:
+      - wireguard
+    state: present
+    update_cache: yes
+  when: wireguard_enabled
+
+- name: Ensure WireGuard configuration directory exists
+  ansible.builtin.file:
+    path: /etc/wireguard
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  when: wireguard_enabled
+
+- name: Generate WireGuard keypair on node if private key not provided
+  ansible.builtin.shell: |
+    umask 077
+    if [ ! -f /etc/wireguard/private.key ]; then
+      wg genkey > /etc/wireguard/private.key
+      wg pubkey < /etc/wireguard/private.key > /etc/wireguard/public.key
+    fi
+  args:
+    executable: /bin/bash
+  when:
+    - wireguard_enabled
+    - wireguard_private_key | length == 0
+
+- name: Read generated private key if not explicitly set in variables
+  ansible.builtin.slurp:
+    src: /etc/wireguard/private.key
+  register: generated_wg_privkey
+  when:
+    - wireguard_enabled
+    - wireguard_private_key | length == 0
+
+- name: Set effective WireGuard private key fact
+  ansible.builtin.set_fact:
+    effective_wg_private_key: "{{ wireguard_private_key if (wireguard_private_key | length > 0) else (generated_wg_privkey.content | b64decode | trim) }}"
+  when: wireguard_enabled
+
+- name: Deploy WireGuard configuration (/etc/wireguard/wg0.conf)
+  ansible.builtin.template:
+    src: wg0.conf.j2
+    dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
+    owner: root
+    group: root
+    mode: '0600'
+  when: wireguard_enabled
+  notify: restart wireguard
+
+- name: Enable and start wg-quick@wg0 service
+  ansible.builtin.systemd_service:
+    name: "wg-quick@{{ wireguard_interface }}"
+    enabled: true
+    state: started
+  when: wireguard_enabled
+  ignore_errors: true

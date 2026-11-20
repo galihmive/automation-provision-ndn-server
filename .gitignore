@@ -1,0 +1,23 @@
+# Packer cache & output
+output/
+packer_cache/
+*.ova
+*.vmdk
+*.vdi
+
+# Ansible retry & log files
+ansible/*.retry
+*.log
+
+# Sensitive credentials & keys
+*.pem
+*.key
+*.id_rsa
+ansible/group_vars/vault.yml
+auto-prov-ndn-server.md
+
+# OS / Editor temporary files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

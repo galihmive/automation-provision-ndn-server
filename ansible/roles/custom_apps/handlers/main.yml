@@ -1,0 +1,6 @@
+---
+- name: restart nfd
+  ansible.builtin.systemd_service:
+    name: nfd
+    state: restarted
+  ignore_errors: true

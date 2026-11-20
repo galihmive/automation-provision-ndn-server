@@ -1,0 +1,65 @@
+---
+# Tasks for role: custom_apps (NFD-nightly, WebSocket & ndn-user-routes)
+
+- name: Add NFD-nightly repository to /etc/apt/sources.list.d/nfd-nightly.list
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/nfd-nightly.list
+    content: "{{ nfd_nightly_apt_line }}\n"
+    owner: root
+    group: root
+    mode: '0644'
+  when: install_ndn_stack
+
+- name: Update apt cache and install nfd & ndn-tools
+  ansible.builtin.apt:
+    name: "{{ nfd_packages }}"
+    state: present
+    update_cache: yes
+  when: install_ndn_stack
+
+- name: Ensure /etc/ndn/nfd.conf exists from sample if missing
+  ansible.builtin.copy:
+    src: /etc/ndn/nfd.conf.sample
+    dest: /etc/ndn/nfd.conf
+    remote_src: true
+    force: false
+  ignore_errors: true
+
+- name: Ensure WebSocket channel is enabled on port {{ nfd_websocket_port }}
+  ansible.builtin.replace:
+    path: /etc/ndn/nfd.conf
+    regexp: '(?ms)(websocket\s*\{[^}]*?listen\s+)(no|false)'
+    replace: '\g<1>yes'
+  notify: restart nfd
+  ignore_errors: true
+
+- name: Ensure NFD service is enabled and started
+  ansible.builtin.systemd_service:
+    name: nfd
+    state: started
+    enabled: true
+
+- name: Deploy /usr/local/bin/ndn-user-routes.sh
+  ansible.builtin.copy:
+    src: ndn-user-routes.sh
+    dest: /usr/local/bin/ndn-user-routes.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy /etc/systemd/system/ndn-user-routes.service
+  ansible.builtin.template:
+    src: ndn-user-routes.service.j2
+    dest: "/etc/systemd/system/{{ custom_service_name }}.service"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable and start ndn-user-routes service
+  ansible.builtin.systemd_service:
+    name: "{{ custom_service_name }}"
+    daemon_reload: yes
+    state: started
+    enabled: true
+  when: custom_service_enabled
+  ignore_errors: true

@@ -1,0 +1,12 @@
+[Unit]
+Description=Route NDN laptop pengguna ke VPS
+After=nfd.service wg-quick@{{ wireguard_interface }}.service
+Requires=nfd.service wg-quick@{{ wireguard_interface }}.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ndn-user-routes.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

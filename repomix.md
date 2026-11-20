@@ -1,0 +1,1 @@
+repomix -o auto-prov-ndn-server.md --style markdown --ignore ".env"

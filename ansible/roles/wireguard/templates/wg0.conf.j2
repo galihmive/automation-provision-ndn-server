@@ -1,0 +1,11 @@
+[Interface]
+PrivateKey = {{ effective_wg_private_key }}
+Address = {{ wireguard_address }}
+MTU = {{ wireguard_mtu }}
+
+[Peer]
+# VPS (hub)
+PublicKey = {{ wireguard_server_public_key }}
+Endpoint = {{ wireguard_server_endpoint }}
+AllowedIPs = {{ wireguard_allowed_ips }}
+PersistentKeepalive = {{ wireguard_persistent_keepalive }}

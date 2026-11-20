@@ -1,0 +1,117 @@
+---
+# Tasks for role: system_tweaks
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+  ignore_errors: true
+
+# Paket dasar & pre-seed debconf agar iperf3 tidak berjalan otomatis sebagai daemon
+- name: Pre-seed debconf for iperf3 to disable automatic daemon startup
+  ansible.builtin.debconf:
+    name: iperf3
+    question: iperf3/start_daemon
+    value: "false"
+    vtype: boolean
+
+- name: Install base networking and diagnostic packages
+  ansible.builtin.apt:
+    name:
+      - wireguard
+      - openssh-server
+      - iperf3
+      - curl
+      - wget
+      - netcat-openbsd
+    state: present
+    update_cache: yes
+
+- name: Ensure iperf3 service is stopped and disabled
+  ansible.builtin.systemd_service:
+    name: iperf3
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+# Unduh & instal Google Chrome .deb di folder Downloads
+- name: Ensure Downloads directory exists for {{ ansible_user }}
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/Downloads"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Download Google Chrome stable .deb to ~/Downloads
+  ansible.builtin.get_url:
+    url: "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+    dest: "/home/{{ ansible_user }}/Downloads/google-chrome-stable_current_amd64.deb"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Install Google Chrome .deb
+  ansible.builtin.apt:
+    deb: "/home/{{ ansible_user }}/Downloads/google-chrome-stable_current_amd64.deb"
+    state: present
+
+# 10.1 Jangan tidur, jangan layar mati
+- name: Disable systemd sleep, suspend, and hibernation
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    masked: true
+  loop:
+    - sleep.target
+    - suspend.target
+    - hibernate.target
+    - hybrid-sleep.target
+
+- name: Configure GNOME power settings (no sleep, no screen blank)
+  ansible.builtin.command: >
+    su - {{ ansible_user }} -c "
+      dbus-launch gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing' || true;
+      dbus-launch gsettings set org.gnome.desktop.session idle-delay 0 || true;
+      dbus-launch gsettings set org.gnome.desktop.screensaver lock-enabled false || true
+    "
+  ignore_errors: true
+
+# 10.2 Jam tersinkron
+- name: Enable NTP time synchronization via timedatectl
+  ansible.builtin.command: timedatectl set-ntp true
+  changed_when: false
+
+- name: Ensure systemd-timesyncd is started and enabled
+  ansible.builtin.systemd_service:
+    name: systemd-timesyncd
+    state: started
+    enabled: true
+
+# 10.3 Pembaruan otomatis dihentikan untuk sesi uji
+- name: Stop and disable unattended-upgrades service
+  ansible.builtin.systemd_service:
+    name: unattended-upgrades
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+# 11. Akses SSH untuk peneliti
+- name: Ensure ssh service is enabled and running
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: started
+    enabled: true
+
+- name: Ensure .ssh directory exists for {{ ansible_user }}
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0700'
+
+- name: Inject researcher SSH public key into authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ researcher_ssh_public_key }}"
+  when: researcher_ssh_public_key | length > 0
