@@ -19,7 +19,8 @@ autoinstall:
   identity:
     hostname: ubuntu24-desktop
     username: ubuntu
-    password: "${password_hash}"
+    # Password hash untuk 'ubuntu' (mkpasswd -m sha-512 ubuntu)
+    password: "$6$w14.J7.sU0Wb9n3r$G6l1/8Hh4k76Y.a7cWk68dCj8F0k71iT9G0l17z.fF72oU9g.l2oYh9zX776yE4q/T3Q6W4i7gB29e/yZ.p1d0"
   ssh:
     install-server: true
     allow-pw: true

@@ -30,7 +30,7 @@ Proyek otomasi infrastruktur untuk membuat dan mengonfigurasi mesin virtual serv
 Pastikan aplikasi-aplikasi berikut telah terpasang di host Windows Anda:
 - **Oracle VirtualBox** (versi 7.x disarankan, terpasang di `C:\Program Files\Oracle\VirtualBox` atau masuk PATH).
 - **Packer** (versi >= 1.8.0 di PATH Windows).
-- **WSL** (Windows Subsystem for Linux, e.g., Ubuntu/Debian) dengan **Ansible** dan `sshpass` terpasang di dalamnya (`sudo apt install ansible sshpass -y`).
+- **WSL** (Windows Subsystem for Linux, e.g., Ubuntu/Debian) dengan **Ansible** terpasang di dalamnya (`sudo apt install ansible -y`).
 - **PowerShell** 5.1 / 7+.
 
 ---
@@ -94,16 +94,11 @@ Buka **PowerShell** sebagai Administrator atau pengguna normal di direktori proy
 
 ---
 
-## 🔐 Kredensial & Konfigurasi
+## 🔑 Kredensial Default
 
 - **Username**: `ubuntu`
-- Saat build, Packer meminta password SSH dan hash SHA-512 untuk password yang sama. Buat hash dengan:
-  ```powershell
-  wsl openssl passwd -6
-  ```
-- Saat provisioning Ansible, masukkan password yang sama ketika diminta untuk SSH dan sudo.
-- WireGuard dinonaktifkan secara default. Untuk mengaktifkannya, isi `wireguard_server_public_key` dan `wireguard_server_endpoint` di `ansible/group_vars/all.yml`, lalu set `wireguard_enabled: true`.
-- **Port SSH Forwarding**: `2222` secara default.
+- **Password**: `ubuntu`
+- **Port SSH Forwarding**: `2222`
 - **Akses Manual SSH**:
   ```bash
   ssh -p 2222 ubuntu@127.0.0.1

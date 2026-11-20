@@ -21,13 +21,8 @@ source "virtualbox-iso" "ubuntu24_desktop" {
   output_directory = "../output"
   output_filename  = "${var.vm_name}"
 
-  # Serve cloud-init files with the password hash supplied at build time.
-  http_content = {
-    "meta-data" = file("${path.root}/http/meta-data")
-    "user-data" = templatefile("${path.root}/http/user-data.pkrtpl.hcl", {
-      password_hash = var.ssh_password_hash
-    })
-  }
+  # Direktori yang dilayani oleh built-in HTTP server Packer
+  http_directory = "http"
 
   # Boot command untuk Subiquity autoinstall di Ubuntu 24.04
   boot_wait = "5s"

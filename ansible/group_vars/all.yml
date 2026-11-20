@@ -6,14 +6,14 @@ timezone: "Asia/Jakarta"
 researcher_ssh_public_key: ""
 
 # WireGuard VPN Configuration
-wireguard_enabled: false
+wireguard_enabled: true
 wireguard_interface: "wg0"
 wireguard_address: "10.10.10.3/24"
 wireguard_mtu: 1420
 # Jika dikosongkan, Ansible akan otomatis men-generate keypair di /etc/wireguard/
 wireguard_private_key: ""
-wireguard_server_public_key: "REPLACE_WITH_SERVER_PUBLIC_KEY"
-wireguard_server_endpoint: "vpn.example.com:51820"
+wireguard_server_public_key: "GRPX+NmGocIl2dA29PpcoAjOoncwahUbecTl2X1aFyk="
+wireguard_server_endpoint: "202.10.34.124:51820"
 wireguard_allowed_ips: "10.10.10.0/24"
 wireguard_persistent_keepalive: 25
 

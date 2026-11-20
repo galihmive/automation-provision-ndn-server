@@ -150,7 +150,7 @@ if ($Stage -in @("all", "ansible")) {
     Write-Host "WSL Ansible directory: $WslAnsibleDir"
     
     # Eksekusi playbook di WSL
-    $AnsibleCommand = "cd '$WslAnsibleDir' && ansible-playbook -i inventory/hosts.ini playbooks/site.yml --ask-pass --ask-become-pass"
+    $AnsibleCommand = "cd '$WslAnsibleDir' && ansible-playbook -i inventory/hosts.ini playbooks/site.yml"
     Write-Host "Menjalankan: wsl bash -c `"$AnsibleCommand`"" -ForegroundColor Cyan
     
     & wsl bash -c $AnsibleCommand
@@ -164,5 +164,5 @@ if ($Stage -in @("all", "ansible")) {
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host " Proses Provisioning Selesai!" -ForegroundColor Green
-Write-Host " Akses SSH: ssh -p $SshPort ubuntu@127.0.0.1" -ForegroundColor Yellow
+Write-Host " Akses SSH: ssh -p $SshPort ubuntu@127.0.0.1 (password: ubuntu)" -ForegroundColor Yellow
 Write-Host "==========================================================" -ForegroundColor Green

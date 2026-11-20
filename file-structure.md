@@ -7,7 +7,7 @@ auto-provision-ubuntu24/
 │   ├── variables.pkr.hcl              # Definisi variabel (RAM, CPU, ISO URL, user/pass)
 │   ├── http/                          # Folder yang di-serve via HTTP oleh Packer saat boot
 │   │   ├── meta-data                  # Metadata kosong untuk cloud-init
-│   │   └── user-data.pkrtpl.hcl       # Template Subiquity autoinstall dengan hash password saat build
+│   │   └── user-data                  # Konfigurasi Subiquity autoinstall (partisi, user, SSH)
 │   └── scripts/                       # Skrip bash yang dijalankan Packer sebelum export OVA
 │       ├── setup-base.sh              # Update sistem & instalasi VirtualBox Guest Additions
 │       └── cleanup.sh                 # Pembersihan apt cache & machine-id sebelum packaging

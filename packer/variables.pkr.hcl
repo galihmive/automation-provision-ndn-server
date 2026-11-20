@@ -42,13 +42,8 @@ variable "ssh_username" {
 
 variable "ssh_password" {
   type        = string
-  description = "Password SSH untuk proses instalasi"
-  sensitive   = true
-}
-
-variable "ssh_password_hash" {
-  type        = string
-  description = "Hash SHA-512 untuk password SSH yang sama"
+  description = "Password SSH (plain text untuk proses instalasi)"
+  default     = "ubuntu"
   sensitive   = true
 }
 
